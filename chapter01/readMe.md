@@ -32,5 +32,18 @@ Spring提供两种不同类型的容器.bean工厂+应用上下文(推荐使用)
 ```
 ##### 1.2.1 使用应用上下文(推荐)
 ```
-
+- AnnotationConigApplicationContext: 从一个或多个基于Java的配置类中加载Spring应用上下文
+- AnnotationConfigWebApplicationContext: 从一个或多个基于Java的配置类中加载Spring Web 应用上下文
+- ClassPathXmlApplicationContext: 从类路径下的一个或多个XML配置文件中加载上下文定义,把应用上下文的定义文件作为类资源.
+- FileSystemXmlapplicationcontext: 从文件系统下的一个或多个XML配置文件中加载上下文定义.
+- XmlWebApplicationContext: 从Web应用下的一个或多个XML配置文件中加载上下文定义
+```
+####### 区别
+```
+- FileSystemXmlapplicationcontext从指定的文件系统路径中查找*.xml文件.
+- ClassPathXmlApplicationContext从所有的类路径(包含JAR文件)下查找*.xml文件.
+```
+##### 1.2.2 bean的生命周期
+```
+bean是随着容器一起启动的.
 ```
