@@ -78,7 +78,18 @@ public class CDPlayerConfig{}
 ```
 自动装配就是让Spring自动满足bean依赖的一种方法.
 ```
+```
+@Autowired注解 可以用于构造器上,属性的Setter方法上,任何方法上; Spring初始化bean之后,会尽可能去满足bean的依赖.
+```
+```
+Spring初始化时候,会尽可能的去满足bean的依赖,如果没有匹配的bean,Spring会抛出一个异常.
+避免异常方式: @Autowired(required=false).但使用的时候,请注意空指针.
+```
+```
+@Autowired注解,等同于 @Inject注解
+```
 
+### 2.3 通过Java代码来装配Bean
 
 
 
