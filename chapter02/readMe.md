@@ -174,20 +174,321 @@ Note:
 这种依赖依赖注入,非常优秀.因为CompactDisc用什么形式创建的Bean都可以.
 ```
 
+### 2.4 通过XML装配bean
+##### 2.4.2 声明一个简单的bean
+```xml
+//bean缺省的ID是:org.thinking.xmlconfig.soundsystem.SgtPeppers#0
+//建议,都填上ID
+<bean class="org.thinking.xmlconfig.soundsystem.SgtPeppers" />
+```
+####### 简单bean声明的特征
+```
+1. 不再需要直接负责创建SgtPeppers的实例.Spring发现这个<bean>会调用默认构造函数创建bean
+```
+```
+2. 要非常留心:这里的bean的类型是以字符串形式设置在class属性中.不会进行编译的类型检测.
+```
+##### 2.4.3 借助构造器注入初始化bean
+```
+Spring提供XML两种声明DI的方式:
+1. <contructor-arg> 元素
+2. 使用Spring3.0 所引入的c-命名空间
+```
+####### 构造器注入bean引用
+1. contructor-arg元素(推荐)
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <bean id="compactDisc" class="soundsystem.SgtPeppers" />
+  
+  <bean id="cdPlayer" class="soundsystem.properties.CDPlayer">
+    <constructor-arg ref="compactDisc" />
+  </bean>
+  
+</beans>
+```
 
+2. c-命名空间
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <bean id="compactDisc" class="soundsystem.SgtPeppers" />
+        
+  <bean id="cdPlayer" class="soundsystem.CDPlayer"
+        c:cd-ref="compactDisc" />
 
+</beans>
+```
+Note:解释
+![](/home/thinking/Pictures/c-ref.png)
+```
+这里的cd是构造函数的参数名,这样非常不好.假如有人改了参数名,岂不是gg了.
+```
+3. c-命名空间(使用参数的引用)
 
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <bean id="compactDisc" class="soundsystem.SgtPeppers" />
+        
+  <bean id="cdPlayer" class="soundsystem.CDPlayer"
+        c:_0-ref="compactDisc" /> //第0个位置的参数
 
+</beans>
+```
+####### 将字面量注入到构造器中(常量,比如:String或数字)
+1. contructor-arg元素(推荐)
 
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <bean id="compactDisc" class="org.thinking.xmlconfig.soundsystem.BlankDisc">
+    <constructor-arg value="Little Luck" />
+    <constructor-arg value="Tian" />
+  </bean>
+</beans>
+```
 
+2. c-命名空间
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <bean id="compactDisc" class="org.thinking.xmlconfig.soundsystem.SgtPeppers" >
+  	c:_title="Little Luck" //去掉了-ref后缀
+    c:_artist="Tian"
+  />
+
+</beans>
+```
+
+3. c-命名空间(使用参数的引用)
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="compactDisc" class="org.thinking.xmlconfig.soundsystem.BlankDisc"
+        c:_0="Little Luck"
+        c:_1="Tian" />
+        
+  <bean id="cdPlayer" class="org.thinking.xmlconfig.soundsystem.CDPlayer"
+        c:_-ref="compactDisc" />
+
+</beans>
+```
+
+####### 装配集合
+1. 装配List<字面量>引用
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="compactDisc" class="org.thinking.xmlconfig.soundsystem.collections.BlankDisc">
+    <constructor-arg value="Little Luck" />
+    <constructor-arg value="Tian" />
+    <constructor-arg>
+      <list> //<set>
+        <value>String_1</value>
+        <value>String_2</value>
+        <value>String_3</value>
+      </list> //</set>
+    </constructor-arg>
+  </bean>
+        
+  <bean id="cdPlayer" class="org.thinking.xmlconfig.soundsystem.CDPlayer">
+    <constructor-arg ref="compactDisc" />
+  </bean>
+
+</beans>
+```
+2. 装配List<Bean>引用
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="discography" class="org.thinking.xmlconfig.soundsystem.collections.Discography">
+    <constructor-arg value="TripleP" />
+    <constructor-arg>
+      <list>
+        <ref bean="bean_1" />
+        <ref bean="bean_2" />
+        <ref bean="bean_3" />
+      </list>
+    </constructor-arg>
+  </bean>
+</beans>
+```
+
+##### 2.4.4  设置属性
+```
+XML除了利用构造函数注入,还可以使用属性的Setter方法.
+```
+####### 引用Bean注入到属性中
+1. 利用property
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="compactDisc" class="org.thinking.xmlconfig.soundsystem.BlankDisc">
+    <constructor-arg value="Little Luck" />
+    <constructor-arg value="Tian" />
+  </bean>
+        
+  <bean id="cdPlayer" class="org.thinking.xmlconfig.soundsystem.properties.CDPlayer">
+    <property name="compactDisc"(属性名) ref="compactDisc" />
+  </bean>
+
+</beans>
+```
+2. 利用p-命名空间
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="compactDisc" class="org.thinking.xmlconfig.soundsystem.BlankDisc">
+    <constructor-arg value="Little Luck" />
+    <constructor-arg value="Tian" />
+  </bean>
+        
+  <bean id="cdPlayer" class="org.thinking.xmlconfig.soundsystem.properties.CDPlayer">
+    <p:compactDisc-ref="compactDisc" />
+  </bean>
+</beans>
+```
+Note:
+![](/home/thinking/Pictures/p-ref.png)
+
+###### 将字面量注入到属性中
+1. 利用property
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="compactDisc"
+        class="soundsystem.properties.BlankDisc">
+    <property name="title" value="Little Luck" />
+    <property name="artist" value="Tian" />
+    <property name="tracks">
+      <list>
+        <value>String_1</value>
+        <value>String_2</value>
+        <value>String_3</value>
+      </list>
+    </property>
+  </bean>
+        
+  <bean id="cdPlayer"
+        class="soundsystem.properties.CDPlayer"
+        p:compactDisc-ref="compactDisc" />
+
+</beans>
+
+```
+2. 利用p-命名空间
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="compactDisc"
+        class="org.thinking.xmlconfig.soundsystem.collections.BlankDisc"
+        p:title="Little Luck"
+        p:artist="Tian">
+    <property name="tracks">
+      <list>
+        <value>String_1</value>
+        <value>String_2</value>
+        <value>String_3</value>
+      </list>
+    </property>
+  </bean>
+        
+  <bean id="cdPlayer"
+        class="soundsystem.properties.CDPlayer"
+        p:compactDisc-ref="compactDisc" />
+
+</beans>
+```
+3. 利用util:list来装配集合
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util 
+    http://www.springframework.org/schema/util/spring-util.xsd">
+
+  <bean id="compactDisc"
+        class="org.thinking.xmlconfig.soundsystem.properties.BlankDisc"
+        p:title="Little Luck"
+        p:artist="Tian"
+        p:tracks-ref="trackList" />
+
+  <util:list id="trackList">  
+    <value>String_1</value>
+    <value>String_2</value>
+    <value>String_3</value>
+  </util:list>
+
+  <bean id="cdPlayer"
+        class="soundsystem.properties.CDPlayer"
+        p:compactDisc-ref="compactDisc" />
+
+</beans>
+```
+
+### 2.5 导入和混合配置
 
 
 
