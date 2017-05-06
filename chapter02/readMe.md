@@ -90,9 +90,89 @@ Spring初始化时候,会尽可能的去满足bean的依赖,如果没有匹配�
 ```
 
 ### 2.3 通过Java代码来装配Bean
+```
+自动化装配bean是最完美的Spring依赖注入方式.但是,有些情况下,可能会失效:
+比如:使用第三方库组件,你无法再类中加上@Component注解和@Autowired注解
+```
+```
+编写配置代码,但请不要和业务逻辑放在一起.
+```
+##### 2.3.1 创建配置类
+```
+@Configuration注解表明这个类是Spring配置类.该类包含在Spring应用上下文中如何创建bean细节.
+```
+##### 2.3.2 声明简单的bean
+```java 
+@Configuration
+public class JavaConfig{
+	@Bean
+	public CompactDisc sgtPeppers(){
+		return new SgtPeppers();
+	}
+}
+```
+Note:
+```
+上面的方法对应一个Bean,缺省bean的id名是:sgtPeppers;
+```
+```java 
+@Configuration
+public class JavaConfig{
+	@Bean(name="lonelyHeartsClubBand")
+	public CompactDisc sgtPeppers(){
+		return new SgtPeppers();
+	}
+}
+```
+##### 2.3.3 借助JavaConfig实现注入
+```Java
+@Configuration
+public class CDPlayerConfig {
+	
+	@Bean
+	public CompactDisc sgtPeppers(){
+		// 这里其实可以返回任何实例.
+		return new SgtPeppers();
+	}
+	
+	@Bean
+	public CDPlayer cdPlayer(){
+		return new CDPlayer(sgtPeppers());
+	}
+    
+    @Bean
+	public CDPlayer anotherCDPlayer(){
+		return new CDPlayer(sgtPeppers());
+	}
+}
+```
+Note:
+```
+Spring会拦截所有获取Bean方法,所以该容器中只有一个sgtPeppers();
+也就是说默认情况下,Spring中的bean都是单例的.
+比如: anotherCDPlayer, cdPlayer Bean会得到相同SgtPeppers实例.
+```
+####### 推荐JavaConfig注入
+```java
+@Configuration
+public class CDPlayerConfig {
+  
+  @Bean
+  public CompactDisc compactDisc() {
+    return new SgtPeppers();
+  }
+  
+  @Bean
+  public CDPlayer cdPlayer(CompactDisc compactDisc) {
+    return new CDPlayer(compactDisc);
+  }
 
-
-
+}
+```
+Note:
+```
+这种依赖依赖注入,非常优秀.因为CompactDisc用什么形式创建的Bean都可以.
+```
 
 
 
