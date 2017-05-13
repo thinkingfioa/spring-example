@@ -104,9 +104,64 @@ public class PersistenceTest{
 ```
 
 ### 3.2 条件化的bean
+```
+使用@Conditional注解,来判断当某个条件满足,才创建bean.
+```
+```java
+@Configuration
+public class MagicConfig {
 
+  @Bean
+  @Conditional(MagicExistsCondition.class)
+  public MagicBean magicBean() {
+    return new MagicBean();
+  }
+  
+}
 
+public class MagicExistsCondition implements Condition {
 
+  @Override
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+    Environment env = context.getEnvironment();
+    return env.containsProperty("magic");
+  }
+  
+}
+
+```
+
+### 3.3 处理自动装配的歧义性
+```
+第2章中, 自动装配时,如果发现多个bean都满足条件.
+spring会抛出NoUniqueBeanDefinitionException异常.
+```
+
+##### 3.3.1 标示首选的bean(@Primary)
+```
+告诉Spring若在自动装配上发生歧义,请使用@Primary
+```
+```
+@Primary能够与@Component组合用在组件扫描的bean上;也与@Bean组合用在Java配置bean的声明中.
+```
+```java
+@Component
+@Primary
+public class IceCream implements Dessert {...}
+```
+```java
+@Bean
+@Primary
+public Dessert iceCream {
+	return new IceCream();
+}
+```
+```xml
+<bean id="iceCream" class "org.thinking.desserteater.IceCream"
+   primary="true"/>
+```
+
+##### 3.3.2 限定自动装配的bean(注解:@Qualifier)
 
 
 
