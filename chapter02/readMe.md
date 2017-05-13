@@ -489,10 +489,93 @@ Note:
 ```
 
 ### 2.5 导入和混合配置
+```
+自动化配置 + JavaConfig + xml配置
+```
 
+##### 2.5.1 在JavaConfig中引用XML配置
+```
+如果某个JavaConfig配置过于庞大,应该要拆分,但是互相又用到了彼此的Bean注入.则采用方法如下:
+```
 
+####### 创建更高级的配置类
+```
+利用@Import将两个彼此相关的类并在一起(推荐)
+```
+```xml
+@Comfiguration
+@Import({CDPlayerConfig.class, CDConfig.class})
+public class SoundSystemConfig{}
+```
+####### 利用导入的方式
+```XML
+@Configuration
+@Import(CDConfig.class)
+public class CDPlayerConfig {
+	@Bean
+    public CDPlayer cdPlayer(CompactDisc compactDisc){
+    	return new CDPlayer(compactDisc);
+    }
+}
+```
 
+####### 利用@ImportResource注解从xml中获取bean
+```xml
+@Comfiguration
+@Import(CDPlayerConfig.class)
+@ImportResource("classpath:cd-config.xml")
+public class SoundSystemConfig{}
+```
 
+##### 2.5.2 在XML配置中引用JavaConfig
 
+####### xml从xml配置中获取bean
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <import resource="cd-config.xml" /> // 从配置文件xml获取compactDisc的Bean
+  
+  <bean id="cdPlayer"
+        class="soundsystem.CDPlayer"
+        c:cd-ref="compactDisc" />
+        
+</beans>
+```
+####### xml从JavaConfig配置中获取bean
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  //从配置文件CDConfig获取compactDisc的Bean
+  <bean class="org.thinking.soundsystem.CDConfig" /> 
+
+  <bean id="cdPlayer"
+        class="soundsystem.CDPlayer"
+        c:cd-ref="compactDisc" />
+        
+</beans>
+
+```
+
+####### 利用最高层次的配置文件
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:c="http://www.springframework.org/schema/c"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	//导入javaConfig配置的Bean
+  <bean class="soundsystem.CDConfig" />
+  //导入xml配置的Bean
+  <import resource="cdplayer-config.xml" />
+        
+</beans>
+```
