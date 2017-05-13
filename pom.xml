@@ -8,6 +8,7 @@
 	<modules>
 		<module>chapter01</module>
 		<module>chapter02</module>
+		<module>chapter03</module>
 	</modules>
 	<!-- https://mvnrepository.com/artifact/junit/junit -->
 	<dependencies>
@@ -38,6 +39,12 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
+			<version>4.3.7.RELEASE</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
 			<version>4.3.7.RELEASE</version>
 		</dependency>
 
