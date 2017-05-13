@@ -230,7 +230,7 @@ Spring提供XML两种声明DI的方式:
 </beans>
 ```
 Note:解释
-![](/home/thinking/Pictures/c-ref.png)
+![](https://github.com/thinkingfioa/spring-example/blob/master/chapter02/src/main/resources/c-ref.png)
 ```
 这里的cd是构造函数的参数名,这样非常不好.假如有人改了参数名,岂不是gg了.
 ```
@@ -396,7 +396,7 @@ XML除了利用构造函数注入,还可以使用属性的Setter方法.
 </beans>
 ```
 Note:
-![](/home/thinking/Pictures/p-ref.png)
+![](https://github.com/thinkingfioa/spring-example/blob/master/chapter02/src/main/resources/p-ref.png)
 
 ###### 将字面量注入到属性中
 1. 利用property
