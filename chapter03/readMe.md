@@ -295,7 +295,7 @@ proxyMode=ScopedProxyMode.INTERFACES由于Spring在创建StoreService时候,还�
 如果另一个对象是借口,使用proxyMode=ScopedProxyMode.INTERFACES.
 如果另一个对象是类,需要使用CGLib生成基于类的代理:proxyMode=ScopedProxyMode.TARGET_CLASS
 ```
-![](http://)
+![](https://github.com/thinkingfioa/spring-example/blob/master/chapter03/src/main/resources/3-1.png)
 
 
 
