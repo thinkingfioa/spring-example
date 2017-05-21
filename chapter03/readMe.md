@@ -313,36 +313,128 @@ xml默认情况下使用的是CGLib创建目标类的代理.如果将proxy-targe
 ```
 
 ### 3.5 运行时值注入
+```
+避免硬编码值,采用下面两种方法,运行时才确定.
+1. 属性占位符
+2. Spring表达式语言(SpEL)
+```
 
+##### 3.5.1 注入外部的值
+```
+使用Spring的Environment+注解@PropertySource,来从配置文件中读取值
+```
+```java
+@Configuration
+@PropertySource("classpath:/org/thinking/app.properties")
+public class EnvironmentConfig {
 
+  @Autowired
+  Environment env;
+  
+  @Bean
+  public BlankDisc blankDisc() {
+    return new BlankDisc(
+        env.getProperty("disc.title"),
+        env.getProperty("disc.artist"));
+  }
+}
+```
+Note:
+```
+注解@PropertySource读取配置文件,填入Spring的Environment
+```
 
+深入学习Spring的Environment
+```
+getProperty(...)方法如果没有获取到指定的属性,返回null;
+getRequiredProperty(String key)方法要求必须有key, 否则抛出IllegalStateException异常.
+```
+```
+Environment几种获取配置方法介绍:
+1. String getProperty(String key);
+2. String getProperty(String key, String defaultValue);//提供缺省值
+3. T getProperty(String key, Class<T> type);//返回指定的类型
+4. T getProperty(String key, Class<T> type, T defaultValue)//
+5. String getRequiredProperty(String key);//要求必须定义了key
+6. boolean containsProperty(String key);//检查配置文件是否定义了key.
+```
 
+解析属性占位符
+```
+为了使用属性占位符,必须使用类PropertySourcesPlaceholderConfigurer
+1. JavaConfig方式
+@Bean
+public static PropertySourcesPlaceholderConfigurer placeholderCOnfigurer(){
+	return new PropertySourcesPlaceholderConfigurer();
+}
+2. XML方式
+<context:property-placeholder />
+```
+```xml
+<bean id = "sgtPeppers" calss = "org.thinking.externals.BlankDisc"
+	c:_tile="${disc.title}"
+    c:_artist="${disc.artist}"
+```
+```java
+public class BlankDisc{
+	public BlankDisc (@Value("${disc.title}") String title, @Value("${disc.artist}")String artist)
+}
+```
 
+##### 3.5.2 使用Spring表达式语言进行装配(SpEL)
+```
+试图延迟到运行时才确定填入的值.
+```
+```
+SpEL表达式: "#{...}",和属性占位符"${...}"很相似.
+```
 
+表示字面值
+```
+(double, int,string ,boolean,科学计数法)
+#{3.14}, #{'hello'}, #{false}, #{9.84E4}(也就是98400
+```
 
+引用bean,属性,方法
+```
+#{sgtPeppers}, #{sgtPeppers.title}, #{sgtPeppers.getObject().getObject()}
+```
+```
+SpEL允许调用bean的方法且可以多次执行,为了避免某次得到null,可以使用"?";
+比如: #{artistSelector.selectArtist()?.toUpperCase()}.
+如果方法:artistSelector.selectArtist()返回null,将不会调用toUpperCase()方法了.
+```
 
+表达式中使用类型
+```
+使用类的静态方法或常量,需要使用关键运算符: T().
+```
+```
+#{T(java.lang.Math).PI}//调用Math中静态常量
+#{T(java.lang.Math).random()}//调用类Math的静态方法
+```
 
+SpEL运算符
+```
+SpEL支持多种运算符,基本的都支持.
+```
+![](https://github.com/thinkingfioa/spring-example/blob/master/chapter03/src/main/resources/3-21.png)
+![](https://github.com/thinkingfioa/spring-example/blob/master/chapter03/src/main/resources/3-22.png)
 
+计算正则表达式
+```
+利用正则表达式,判断是否相匹配,匹配是true,不匹配是false
+#{admin.email matches '[a-zA-z...]'}
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+计算集合
+```
+获取列表中第2个值: #{thinking.songs[2].title}
+```
+```
+查询运算符(.?[]),对集合进行过滤,得到满足条件的集合
+如 : #{thinking.songs.?[artist eq 'Tian']}.//从集合songs歌曲中,挑出Tian唱的歌
+如 : #{thinking.songs.^[artist eq 'Tian']}.//从集合songs歌曲中,查询第一个匹配的
+如 : #{thinking.songs.$[artist eq 'Tian']}.//从集合songs歌曲中,查询最后一个匹配的
+如 : #{thinking.songs.![artist}.//将songs歌曲中artist放到List中.
+```
