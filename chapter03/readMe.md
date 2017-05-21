@@ -144,11 +144,13 @@ spring会抛出NoUniqueBeanDefinitionException异常.
 ```
 @Primary能够与@Component组合用在组件扫描的bean上;也与@Bean组合用在Java配置bean的声明中.
 ```
+自动配置
 ```java
 @Component
 @Primary
 public class IceCream implements Dessert {...}
 ```
+JavaConfig
 ```java
 @Bean
 @Primary
@@ -156,12 +158,164 @@ public Dessert iceCream {
 	return new IceCream();
 }
 ```
+XML配置
 ```xml
 <bean id="iceCream" class "org.thinking.desserteater.IceCream"
    primary="true"/>
 ```
 
 ##### 3.3.2 限定自动装配的bean(注解:@Qualifier)
+```
+@Qualifier注解在注入时候指定想要注入进去的bean.如:@Qualifier(bean的ID)
+```
+
+创建自定义的限定符(推荐)
+```
+在创建bean时候加上注解:@Qualifier(...)
+```
+```java
+@Component
+@Qualifier("cold")
+public class IceCream implements Dessert { ... }
+
+@Autowired // 或者是@Bean
+@Qualifier("cold")
+public void setDessert(Dessert dessert) {
+	this.dessert = dessert;
+}
+```
+
+使用自定义的限定符注解
+```
+当一个@Qualifier注解无法区别出其中的两个bean时,且java不允许同一个条目中出现多个相同的注解.
+所以必须采用自定义限定符注解,将相似的两个bean区别开来.
+```
+```java
+//创建一个Code注解
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD,
+			ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Cold {}
+
+//创建一个Creamy注解
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD,
+			ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Creamy {}
+
+//创建一个Fruity注解
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD,
+			ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Creamy {}
+```
+```java
+@Component
+@Cold
+@Creamy
+public class IceCream implements Dessert { ... }
+
+@Component
+@Cold
+@Fruity
+public class Popsicle implements Dessert { ... }
+
+@Autowired
+@Cold
+@Creamy
+public void setDessert(Dessert dessert) {
+	this.dessert = dessert;
+}
+```
+
+### 3.4 bean的作用域
+```
+在默认情况下,Spring应用上下文中所有的bean都是单例的,也就是说一个bean不管被注入到其他的bean中几次,
+都是同一个实例.
+```
+```
+Spring定义了多种作用域:
+1. 单例: 在整个应用中,只创建bean的一个实例.
+2. 原型: 每次注入或通过Spring应用上下文获取时候,都会创建一个新的bean实例.
+3. 会话: 在Web应用中,为每个会话创建一个bean实例.
+4. 请求: 在Web应用中,为每个请求创建一个bean实例.
+```
+
+##### 使用注解@Scope为bean声明作用域
+```java
+@Component
+// 或者是 @Scope("prototype")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) 
+public class Notepad {...}
+
+@Bean
+// 或者是 @Scope("prototype")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) 
+public Notepad notePad(){
+	return new Notepad();
+}
+
+<bean id="notepad" class="com.myapp.NotePad" scope="prototype" />
+```
+
+##### 3.4.1 使用会话和请求作用域
+```
+在一些Web应用中,在会话和请求范围内共享bean是非常有意义的.
+```
+举例
+```java
+@Component
+@Scope(value=WebApplicationContext.SCOPE_SESSION,
+	proxyMode=ScopedProxyMode.INTERFACES)
+public interface ShoppingCart { ... }
+
+@Component
+public class StoreService {
+	ShoppingCart shoppingCart;
+	
+	@Autowired
+	public void setShoppingCard(ShoppingCart shoppingCart){
+		this.shoppingCart = shoppingCart;
+	}
+}
+```
+解释
+```
+value=WebApplicationContext.SCOPE_SESSION表明spring为每个session创建一个bean.
+proxyMode=ScopedProxyMode.INTERFACES由于Spring在创建StoreService时候,还无法有session,
+所以提供一个代理,且需要保证ShoppingCart是一个接口.
+如果ShoppingCart是一个类,同时希望作用域是session,需要使用:proxyMode=ScopedProxyMode.TARGET_CLASS)
+```
+解释作用域代理
+```
+当一个对象创建时,它依赖的另一个对象目前还不能创建,就需要使用作用域代理.
+如果另一个对象是借口,使用proxyMode=ScopedProxyMode.INTERFACES.
+如果另一个对象是类,需要使用CGLib生成基于类的代理:proxyMode=ScopedProxyMode.TARGET_CLASS
+```
+![](http://)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
