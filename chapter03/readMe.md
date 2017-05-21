@@ -284,9 +284,9 @@ public class StoreService {
 ```
 解释
 ```
-value=WebApplicationContext.SCOPE_SESSION表明spring为每个session创建一个bean.
-proxyMode=ScopedProxyMode.INTERFACES由于Spring在创建StoreService时候,还无法有session,
-所以提供一个代理,且需要保证ShoppingCart是一个接口.
+1. value=WebApplicationContext.SCOPE_SESSION表明spring为每个session创建一个bean.
+2. proxyMode=ScopedProxyMode.INTERFACES由于Spring在创建StoreService时候,还无法有session,
+3. 所以提供一个代理,且需要保证ShoppingCart是一个接口.
 如果ShoppingCart是一个类,同时希望作用域是session,需要使用:proxyMode=ScopedProxyMode.TARGET_CLASS)
 ```
 解释作用域代理
@@ -297,8 +297,22 @@ proxyMode=ScopedProxyMode.INTERFACES由于Spring在创建StoreService时候,还�
 ```
 ![](https://github.com/thinkingfioa/spring-example/blob/master/chapter03/src/main/resources/3-1.png)
 
+##### 3.4.2 在XML中声明作用域代理
+```
+xml中不能使用注解@Scope,需要用<aop:scoped-proxy/>来代替
+```
+```xml
+<bean id = "cart"
+	class="org.thinking.ShoppingCart"
+    scope="session" >
+    <aop:scoped-proxy proxy-target-class="false"/>
+```
+Note
+```
+xml默认情况下使用的是CGLib创建目标类的代理.如果将proxy-target-class="false"则表示生成基于接口的代理"
+```
 
-
+### 3.5 运行时值注入
 
 
 

@@ -1,4 +1,4 @@
-package chapter03;
+package org.thinking.profile.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
