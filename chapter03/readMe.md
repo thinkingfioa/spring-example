@@ -373,7 +373,7 @@ public static PropertySourcesPlaceholderConfigurer placeholderCOnfigurer(){
 ```xml
 <bean id = "sgtPeppers" calss = "org.thinking.externals.BlankDisc"
 	c:_tile="${disc.title}"
-    c:_artist="${disc.artist}"
+    c:_artist="${disc.artist}" />
 ```
 ```java
 public class BlankDisc{
@@ -437,4 +437,17 @@ SpEL支持多种运算符,基本的都支持.
 如 : #{thinking.songs.^[artist eq 'Tian']}.//从集合songs歌曲中,查询第一个匹配的
 如 : #{thinking.songs.$[artist eq 'Tian']}.//从集合songs歌曲中,查询最后一个匹配的
 如 : #{thinking.songs.![artist}.//将songs歌曲中artist放到List中.
+```
+
+SpEL使用
+```java
+public BlankDisc(@Value("#{'The Litter Cuter'}") String title, @Value("#{'Tian'}") String artist) {
+	this.title = title;
+    this.artist = artist;
+}
+```
+```xml
+<bean id = "sgtPeppers" calss = "org.thinking.externals.BlankDisc"
+	c:_tile="#{'The Litter Cuter'}"
+    c:_artist="#{'Tian'}" />
 ```
