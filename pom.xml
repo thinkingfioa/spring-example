@@ -10,7 +10,8 @@
 		<module>chapter02</module>
 		<module>chapter03</module>
 		<module>chapter04</module>
-	</modules>
+        <module>chapter05</module>
+    </modules>
 	<!-- https://mvnrepository.com/artifact/junit/junit -->
 	<dependencies>
 		<dependency>
