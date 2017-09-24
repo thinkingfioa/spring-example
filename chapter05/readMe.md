@@ -84,8 +84,56 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 }
 ```
 
+##### 5.1.3 Spittr应用简介
+Spittr应用是一个简单微博。有两个基本的领域概念:Spitter(应用的用户)和Spittle(用户发布的简短状态更新)
 
+### 5.2 编写基本的控制器
+在方法上加上注解:@RequestMapping注解的类，就是控制器。
+下面是一个处理对"/"的请求，并渲染应用的首页
 
+```java
+@Controller //声明为一个控制器
+@RequestMapping("/")
+public class HomeController {
+
+    // 处理对"/"的GET请求
+    @RequestMapping(method = GET)
+    public String home(Model model){
+        return "home"; //视图名为hoem
+    }
+}
+```
+1. 注解：@Controller用来声明控制器,组件会扫描到HomeController，并将其声明为Spring应用上下文中的一个bean.
+2. 这里如果使用@Component注解也是一样的效果。但是表达性略差。
+3. 方法: home(...)返回逻辑的视图名称。视图解析器会将其解析为:"/WEB-INF/views/home.jsp"
+
+主页: home.jsp也可以参考chapter05中的home.jsp
+
+##### 5.2.1 测试控制器（编写测试用例未通过）
+```java
+public class HomeControllerTest {
+    @Test
+    public void testHomePage() throws Exception {
+        HomeController homeController = new HomeController();
+        MockMvc mockMvc = standaloneSetup(homeController).build();
+        mockMvc.perform(get("/")).andExpect(view().name("home"));
+    }
+}
+```
+
+##### 5.2.2 定义类级别的请求处理
+1. 注解:@RequestMapping 可以修饰一个类,如果类上面又注解@RequestMapping，那么方法上的注解@ RequestMapping将会是一种补充。
+2. 注解:@RequestMapping 可以接受多参数。
+
+```java
+@Controller
+@RequestMapping({"/","/homepage"})
+public class HomeController {
+ ...
+}
+```
+
+##### 5.2.3 传递模型数据到视图中
 
 
 

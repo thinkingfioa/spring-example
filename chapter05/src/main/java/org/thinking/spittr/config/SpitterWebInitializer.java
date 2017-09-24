@@ -3,6 +3,7 @@ package org.thinking.spittr.config;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import org.thinking.spittr.web.WebConfig;
 
+
 public class SpitterWebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     //加载ContextLoaderListener的Spring上下文
